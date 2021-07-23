@@ -1,0 +1,21 @@
+{
+ "name": "Mai Viet",
+ "gender": "MALE",
+ "dob": "2000-06-15",
+ "address": "Hoang Mai, Ha Noi",
+ "school": "HUST",
+ "applyPosition": " Java Dev",
+ "applyDay": "2021-07-01",
+ "cvSource": "Mr Phan",
+ "cvReceiver": "Ms Hue",
+ "cvUrl": "http...",
+ "presenter": "Mr Phan",
+ "interviewer": ["Mr Phan","Mr Dau"],
+ "interviewerSecretary": ["Ms Hue"],
+ "interviewResult": "true",
+ "receptionDepartment": "Smart Solution",
+ "createTime": "2021-07-22T14:51:46.691008100",
+ "updateTime": "2021-07-22T14:51:46.691008100",
+ "whoCreated": "admin",
+ "whoUpdated": "admin"
+}
