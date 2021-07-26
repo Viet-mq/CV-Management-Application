@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -45,7 +46,7 @@ public class CandidateService {
         candidate.setAddress(address);
         candidate.setSchool(school);
         candidate.setApplyPosition(applyPosition);
-        candidate.setCvSource(cvSource);
+        if(cvSource != null) candidate.setCvSource(cvSource);
         return candidateRepository.save(candidate);
     }
 
@@ -66,6 +67,29 @@ public class CandidateService {
             return candidate;
         }
 
+    }
+
+    public Candidate updateCv(UUID id,
+                                String cvSource,
+                                String cvReceiver,
+                                String cvUrl,
+                                String presenter,
+                                List<String>interviewer,
+                                List<String> interviewerSecretary,
+                                boolean interviewResult,
+                                String receptionDepartment){
+        Candidate candidate = candidateRepository.findById(id);
+        if(cvSource != null) candidate.setCvSource(cvSource);
+        if(cvReceiver != null)  candidate.setCvReceiver(cvReceiver);
+        if(cvUrl != null) candidate.setCvUrl(cvUrl);
+        if(presenter != null) candidate.setPresenter(presenter);
+        if(interviewer != null) candidate.setInterviewer(interviewer);
+        if(interviewerSecretary != null) candidate.setInterviewerSecretary(interviewerSecretary);
+        if(candidate.isInterviewResult() != interviewResult && !candidate.isInterviewResult())
+            candidate.setInterviewResult(interviewResult);
+        if(receptionDepartment != null) candidate.setReceptionDepartment(receptionDepartment);
+        candidate.setUpdateTime(LocalDateTime.now());
+        return candidateRepository.save(candidate);
     }
 
     public void deleteCV(){

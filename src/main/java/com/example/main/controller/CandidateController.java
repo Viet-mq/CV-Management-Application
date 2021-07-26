@@ -27,32 +27,32 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @RequestMapping(value = "/candidates", method = RequestMethod.GET)
-    public ResponseEntity<List<Candidate>> getAllCandidates(@RequestParam(required = false) String name){
-        try{
+    public ResponseEntity<List<Candidate>> getAllCandidates(@RequestParam(required = false) String name) {
+        try {
             List<Candidate> candidates = new ArrayList<>();
-            if(name == null){
+            if (name == null) {
                 candidates.addAll(candidateRepository.findAll());
             } else {
                 candidates.addAll(candidateRepository.findByName(name));
             }
 
-            if(candidates.isEmpty())
+            if (candidates.isEmpty())
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
             return new ResponseEntity<>(candidates, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @RequestMapping(value = "/addcv", method = RequestMethod.POST)
     public String addCv(@RequestParam String name,
-                           @RequestParam Gender gender,
-                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dob,
-                           @RequestParam String address,
-                           @RequestParam String school,
-                           @RequestParam String applyPosition,
-                           @RequestParam(required = false) String cvSource){
+                        @RequestParam Gender gender,
+                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dob,
+                        @RequestParam String address,
+                        @RequestParam String school,
+                        @RequestParam String applyPosition,
+                        @RequestParam(required = false) String cvSource) {
         Candidate candidate = candidateService.addCandidateCv(name, gender, dob, address, school, applyPosition, cvSource);
         return candidate.toString();
     }
@@ -65,37 +65,55 @@ public class CandidateController {
                            @RequestParam String address,
                            @RequestParam String school,
                            @RequestParam String applyPosition,
-                           @RequestParam(required = false) String cvSource){
+                           @RequestParam(required = false) String cvSource) {
         Candidate candidate = candidateService.updateCandidateCv(id, name, gender, dob, address, school, applyPosition, cvSource);
         return candidate.toString();
     }
 
+    @RequestMapping(value = "/candidates/updatecv", method = RequestMethod.PUT)
+    public String updateCv2(@RequestParam(required = false) UUID id,
+                            @RequestParam(required = false) String cvSource,
+                            @RequestParam(required = false) String cvReceiver,
+                            @RequestParam(required = false) String cvUrl,
+                            @RequestParam(required = false) String presenter,
+                            @RequestParam(required = false) List<String> interviewer,
+                            @RequestParam(required = false) List<String> interviewerSecretary,
+                            @RequestParam(required = false) boolean interviewResult,
+                            @RequestParam(required = false) String receptionDepartment) {
+        if (id == null) {
+            return null;
+        } else {
+            Candidate candidate = candidateService.updateCv(id, cvSource, cvReceiver, cvUrl, presenter, interviewer, interviewerSecretary, interviewResult, receptionDepartment);
+            return candidate.toString();
+        }
+    }
+
     @RequestMapping(value = "/uploadcv", method = RequestMethod.PUT)
-    public void uploadCv(@RequestParam (required = false) UUID id,
-                         @RequestParam (required = false) String cvUrl){
+    public void uploadCv(@RequestParam(required = false) UUID id,
+                         @RequestParam(required = false) String cvUrl) {
         candidateService.uploadCV(id, cvUrl);
     }
 
     @RequestMapping(value = "candidates/cv", method = RequestMethod.GET)
-    public ResponseEntity<List<String>> getAllCv(@RequestParam(required = false) String name){
-        try{
+    public ResponseEntity<List<String>> getAllCv(@RequestParam(required = false) String name) {
+        try {
             List<String> candidatesCv = new ArrayList<>();
             List<Candidate> candidates;
 
-            if(name == null)
+            if (name == null)
                 candidates = new ArrayList<>(candidateRepository.findAll());
             else
                 candidates = new ArrayList<>(candidateRepository.findByName(name));
 
-            for(Candidate candidate : candidates){
+            for (Candidate candidate : candidates) {
                 candidatesCv.add(candidate.getCvUrl());
             }
 
-            if(candidatesCv.isEmpty())
+            if (candidatesCv.isEmpty())
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
             return new ResponseEntity<>(candidatesCv, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
