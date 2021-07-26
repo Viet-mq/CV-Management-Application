@@ -55,17 +55,17 @@ public class CandidateService {
     }
 
     public Candidate uploadCV(UUID id, String cvUrl){
+        Candidate candidate;
         if(id == null) {
-            Candidate candidate = new Candidate();
+            candidate = new Candidate();
             candidate.setId(UUID.randomUUID());
-            candidate.setCvUrl(cvUrl);
-            return candidate;
         }
         else{
-            Candidate candidate = candidateRepository.findById(id);
-            candidate.setCvUrl(cvUrl);
-            return candidate;
+            candidate = candidateRepository.findById(id);
         }
+        candidate.setCvUrl(cvUrl);
+        candidate.setUpdateTime(LocalDateTime.now());
+        return candidate;
 
     }
 
