@@ -14,12 +14,12 @@ public class HistoryService {
     @Autowired
     HistoryRepository historyRepository;
 
-    public History addHistory(String action){
+    public void addHistory(String action){
         History history = new History(action);
         history.setId(UUID.randomUUID());
         history.setAction(action);
         history.setTime(LocalDateTime.now());
-        return historyRepository.save(history);
+        historyRepository.save(history);
     }
 
 }
