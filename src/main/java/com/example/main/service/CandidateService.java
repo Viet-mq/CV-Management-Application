@@ -54,7 +54,7 @@ public class CandidateService {
         return null;
     }
 
-    public Candidate uploadCV(UUID id, String cvUrl){
+    public void uploadCV(UUID id, String cvUrl){
         Candidate candidate;
         if(id == null) {
             candidate = new Candidate();
@@ -65,8 +65,7 @@ public class CandidateService {
         }
         candidate.setCvUrl(cvUrl);
         candidate.setUpdateTime(LocalDateTime.now());
-        return candidate;
-
+        candidateRepository.save(candidate);
     }
 
     public Candidate updateCv(UUID id,
