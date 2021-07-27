@@ -4,6 +4,7 @@ import com.example.main.model.Candidate;
 import com.example.main.model.Gender;
 import com.example.main.repository.CandidateRepository;
 import com.example.main.service.CandidateService;
+import com.example.main.service.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -26,16 +27,23 @@ public class CandidateController {
     @Autowired
     private CandidateService candidateService;
 
-    @RequestMapping(value = "/candidates", method = RequestMethod.GET)
+    @Autowired
+    private HistoryService historyService;
+
+    @GetMapping(value = "/candidates")
     public ResponseEntity<List<Candidate>> getAllCandidates(@RequestParam(required = false) String name) {
         try {
             List<Candidate> candidates = new ArrayList<>();
+            String action;
             if (name == null) {
                 candidates.addAll(candidateRepository.findAll());
+                action = "Get all candidates";
             } else {
                 candidates.addAll(candidateRepository.findByName(name));
+                action = "Get candidates by name = " + name;
             }
 
+            historyService.addHistory(action);
             if (candidates.isEmpty())
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
@@ -45,7 +53,7 @@ public class CandidateController {
         }
     }
 
-    @RequestMapping(value = "/addcv", method = RequestMethod.POST)
+    @PostMapping(value = "/addcv")
     public String addCv(@RequestParam String name,
                         @RequestParam Gender gender,
                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dob,
@@ -54,10 +62,12 @@ public class CandidateController {
                         @RequestParam String applyPosition,
                         @RequestParam(required = false) String cvSource) {
         Candidate candidate = candidateService.addCandidateCv(name, gender, dob, address, school, applyPosition, cvSource);
+        String action = "Add CV with candidate's name: " + name;
+        historyService.addHistory(action);
         return candidate.toString();
     }
 
-    @RequestMapping(value = "/updatecv", method = RequestMethod.PUT)
+    @PutMapping(value = "/updatecv")
     public String updateCv(@RequestParam(required = false) UUID id,
                            @RequestParam String name,
                            @RequestParam Gender gender,
@@ -67,10 +77,12 @@ public class CandidateController {
                            @RequestParam String applyPosition,
                            @RequestParam(required = false) String cvSource) {
         Candidate candidate = candidateService.updateCandidateCv(id, name, gender, dob, address, school, applyPosition, cvSource);
+        String action = "Update CV with candidate's name: " + name;
+        historyService.addHistory(action);
         return candidate.toString();
     }
 
-    @RequestMapping(value = "/candidates/updatecv", method = RequestMethod.PUT)
+    @PutMapping(value = "/candidates/updatecv")
     public String updateCv2(@RequestParam(required = false) UUID id,
                             @RequestParam(required = false) String cvSource,
                             @RequestParam(required = false) String cvReceiver,
@@ -83,28 +95,42 @@ public class CandidateController {
         if (id == null) {
             return null;
         } else {
+            String action = "Update CV, id: " + id;
+            historyService.addHistory(action);
             Candidate candidate = candidateService.updateCv(id, cvSource, cvReceiver, cvUrl, presenter, interviewer, interviewerSecretary, interviewResult, receptionDepartment);
             return candidate.toString();
         }
     }
 
-    @RequestMapping(value = "/uploadcv", method = RequestMethod.PUT)
+    @PutMapping(value = "/uploadcv")
     public void uploadCv(@RequestParam(required = false) UUID id,
                          @RequestParam(required = false) String cvUrl) {
+        String action;
+        if(id != null)
+            action = "Upload CV to id: " + id;
+        else
+            action = "Upload CV";
+        historyService.addHistory(action);
         candidateService.uploadCV(id, cvUrl);
     }
 
-    @RequestMapping(value = "candidates/cv", method = RequestMethod.GET)
+    @GetMapping(value = "candidates/cv")
     public ResponseEntity<List<String>> getAllCv(@RequestParam(required = false) String name) {
         try {
             List<String> candidatesCv = new ArrayList<>();
             List<Candidate> candidates;
+            String action;
 
-            if (name == null)
+            if (name == null){
                 candidates = new ArrayList<>(candidateRepository.findAll());
-            else
+                action = "Get all cv url";
+            }
+            else {
                 candidates = new ArrayList<>(candidateRepository.findByName(name));
+                action = "Get " + name +"'s cv url";
+            }
 
+            historyService.addHistory(action);
             for (Candidate candidate : candidates) {
                 candidatesCv.add(candidate.getCvUrl());
             }
@@ -118,22 +144,25 @@ public class CandidateController {
         }
     }
 
-    @RequestMapping(value = "/candidates/{id}", method = RequestMethod.PUT)
+    @PutMapping(value = "/candidates/{id}")
     public void modifyCandidateById(@PathVariable("id") UUID id, @Valid @RequestBody Candidate candidate) {
+        String action = "Update candidate by id: " + id;
         candidate.setId(id);
+        historyService.addHistory(action);
         candidateRepository.save(candidate);
     }
 
-    @RequestMapping(value = "/candidates", method = RequestMethod.POST)
+    @PostMapping(value = "/candidates")
     public Candidate addCandidate(@Valid @RequestBody Candidate candidate) {
         candidate.setId(UUID.randomUUID());
         candidateRepository.save(candidate);
         return candidate;
     }
 
-    @RequestMapping(value = "/candidates/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/candidates/{id}")
     public void deleteCandidate(@PathVariable UUID id) {
-
+        String action = "Delete candidate by id: " + id;
+        historyService.addHistory(action);
         candidateRepository.delete(candidateRepository.findById(id));
     }
 
