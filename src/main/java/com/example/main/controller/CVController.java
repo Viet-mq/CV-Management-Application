@@ -1,7 +1,9 @@
 package com.example.main.controller;
 
 import com.example.main.model.CV;
+import com.example.main.repository.HistoryRepository;
 import com.example.main.service.CVService;
+import com.example.main.service.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -19,14 +21,18 @@ import java.util.stream.Collectors;
 @CrossOrigin("http://localhost:8081")
 public class CVController {
     @Autowired
-    CVService cvService;
+    private CVService cvService;
+
+    @Autowired
+    private HistoryService historyService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        String message = "";
+        String message, action;
         try {
             cvService.save(file);
-
+            action = "Upload file " + file.getOriginalFilename() + " to server";
+            historyService.addHistory(action);
             message = "Uploaded the file successfully: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(message);
         } catch (Exception e) {
@@ -44,6 +50,8 @@ public class CVController {
 
             return new CV(filename, url);
         }).collect(Collectors.toList());
+        String action = "Get all CV";
+        historyService.addHistory(action);
 
         return ResponseEntity.status(HttpStatus.OK).body(cvList);
     }
@@ -51,6 +59,8 @@ public class CVController {
     @GetMapping("/cv/{filename:.+}")
     public ResponseEntity<Resource> getCV(@PathVariable String filename) {
         Resource file = cvService.load(filename);
+        String action = "Get CV: " + filename;
+        historyService.addHistory(action);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }

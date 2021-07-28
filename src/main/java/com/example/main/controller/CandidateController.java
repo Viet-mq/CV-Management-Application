@@ -103,13 +103,11 @@ public class CandidateController {
     }
 
     @PutMapping(value = "/uploadcv")
-    public void uploadCv(@RequestParam(required = false) UUID id,
+    public void uploadCv(UUID id,
                          @RequestParam(required = false) String cvUrl) {
         String action;
-        if(id != null)
-            action = "Upload CV to id: " + id;
-        else
-            action = "Upload CV";
+        action = "Upload CV url to id: " + id;
+
         historyService.addHistory(action);
         candidateService.uploadCV(id, cvUrl);
     }
